@@ -1012,6 +1012,27 @@ class ServerOptions(Options):
                     'username and password must be specified' % section)
         return {'username':username, 'password':password}
 
+    def _parse_template_dir(self, parser, section):
+        from supervisor.web import VIEWS
+        get = parser.saneget
+        templateconf = get(section, 'templatedir', None)
+        if templateconf:
+            templatedir = existing_directory(templateconf)
+        else:
+            here = os.path.abspath(os.path.dirname(__file__))
+            templatedir = existing_directory(os.path.join(here, 'ui'))
+
+        for k,v in VIEWS.iteritems():
+            tfile = v['template']
+            if tfile:
+                fullpath = os.path.join(templatedir,tfile)
+                if not os.path.isfile(fullpath):
+                    raise ValueError(
+                        'Template file %s does not exist '
+                        'in directory %s' %(tfile, templatedir))
+
+        return {'templatedir':templatedir}
+
     def server_configs_from_parser(self, parser):
         configs = []
         inet_serverdefs = self._parse_servernames(parser, 'inet_http_server')
@@ -1019,6 +1040,7 @@ class ServerOptions(Options):
             config = {}
             get = parser.saneget
             config.update(self._parse_username_and_password(parser, section))
+            config.update(self._parse_template_dir(parser, section))
             config['name'] = name
             config['family'] = socket.AF_INET
             port = get(section, 'port', None)
@@ -1042,6 +1064,7 @@ class ServerOptions(Options):
             config['family'] = socket.AF_UNIX
             config['file'] = normalize_path(sfile)
             config.update(self._parse_username_and_password(parser, section))
+            config.update(self._parse_template_dir(parser, section))
             chown = get(section, 'chown', None)
             if chown is not None:
                 try:

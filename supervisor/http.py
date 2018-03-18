@@ -819,9 +819,12 @@ def make_http_servers(options, supervisord):
         xmlrpchandler = supervisor_xmlrpc_handler(supervisord, subinterfaces)
         tailhandler = logtail_handler(supervisord)
         maintailhandler = mainlogtail_handler(supervisord)
-        uihandler = supervisor_ui_handler(supervisord)
-        here = os.path.abspath(os.path.dirname(__file__))
-        templatedir = os.path.join(here, 'ui')
+        # uihandler = supervisor_ui_handler(supervisord)
+        # here = os.path.abspath(os.path.dirname(__file__))
+        # templatedir = os.path.join(here, 'ui')
+        templatedir = config['templatedir']
+        uihandler = supervisor_ui_handler(supervisord, templatedir)
+
         filesystem = filesys.os_filesystem(templatedir)
         defaulthandler = default_handler.default_handler(filesystem)
 

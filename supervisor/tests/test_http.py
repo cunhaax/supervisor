@@ -613,7 +613,7 @@ class TopLevelFunctionTests(unittest.TestCase):
     def test_make_http_servers_socket_type_error(self):
         config = {'family':999, 'host':'localhost', 'port':17735,
                   'username':None, 'password':None,
-                  'section':'inet_http_server'}
+                  'section':'inet_http_server', 'templatedir': None}
         try:
             servers = self._make_http_servers([config])
             self.fail('nothing raised')
@@ -623,10 +623,11 @@ class TopLevelFunctionTests(unittest.TestCase):
     def test_make_http_servers_noauth(self):
         socketfile = tempfile.mktemp()
         inet = {'family':socket.AF_INET, 'host':'localhost', 'port':17735,
-                'username':None, 'password':None, 'section':'inet_http_server'}
+                'username':None, 'password':None, 'section':'inet_http_server',
+                'templatedir': None}
         unix = {'family':socket.AF_UNIX, 'file':socketfile, 'chmod':int('700', 8),
                 'chown':(-1, -1), 'username':None, 'password':None,
-                'section':'unix_http_server'}
+                'section':'unix_http_server', 'templatedir': None}
         servers = self._make_http_servers([inet, unix])
         self.assertEqual(len(servers), 2)
 
@@ -651,10 +652,10 @@ class TopLevelFunctionTests(unittest.TestCase):
         socketfile = tempfile.mktemp()
         inet = {'family':socket.AF_INET, 'host':'localhost', 'port':17736,
                 'username':'username', 'password':'password',
-                'section':'inet_http_server'}
+                'section':'inet_http_server', 'templatedir': None}
         unix = {'family':socket.AF_UNIX, 'file':socketfile, 'chmod':int('700', 8),
                 'chown':(-1, -1), 'username':'username', 'password':'password',
-                'section':'unix_http_server'}
+                'section':'unix_http_server', 'templatedir': None}
         servers = self._make_http_servers([inet, unix])
         self.assertEqual(len(servers), 2)
         from supervisor.http import supervisor_auth_handler

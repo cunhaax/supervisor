@@ -559,11 +559,11 @@ class OKView:
 
 VIEWS = {
     'index.html': {
-          'template':'ui/status.html',
+          'template':'status.html',
           'view':StatusView
           },
     'tail.html': {
-           'template':'ui/tail.html',
+           'template':'tail.html',
            'view':TailView,
            },
     'ok.html': {
@@ -576,8 +576,9 @@ VIEWS = {
 class supervisor_ui_handler:
     IDENT = 'Supervisor Web UI HTTP Request Handler'
 
-    def __init__(self, supervisord):
+    def __init__(self, supervisord, templatedir='ui'):
         self.supervisord = supervisord
+        self.templatedir = templatedir
 
     def match(self, request):
         if request.command not in ('POST', 'GET'):
@@ -640,7 +641,9 @@ class supervisor_ui_handler:
         response['headers'] = {}
 
         viewclass = viewinfo['view']
-        viewtemplate = viewinfo['template']
+        viewtemplate = None
+        if viewinfo.get('template'):
+            viewtemplate = os.path.join(self.templatedir, viewinfo['template'])
         context = ViewContext(template=viewtemplate,
                               request = request,
                               form = form,
@@ -649,4 +652,3 @@ class supervisor_ui_handler:
         view = viewclass(context)
         pushproducer = request.channel.push_with_producer
         pushproducer(DeferredWebProducer(request, view))
-
